@@ -1,6 +1,8 @@
 package aoc
 
 import aoc.day1.Day1
+import aoc.day2.Day2
+
 object App {
 
   def main(args: Array[String]): Unit = {
@@ -14,8 +16,8 @@ object App {
     }
 
     whichDayToRun match {
-      case _ =>     Day1().run()
-
+      case "1" => Day1().run()
+      case _ => Day2().run()
     }
   }
 
