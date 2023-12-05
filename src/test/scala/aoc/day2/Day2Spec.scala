@@ -1,6 +1,5 @@
 package aoc.day2
 
-import aoc.day2.Day2
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -14,7 +13,7 @@ class Day2Spec extends AnyWordSpec with Matchers {
 
       val input1 = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"
 
-      day2.createGameFromEntry(input1) shouldBe Game(1, List(IndividualGame(3, 4, 0), IndividualGame(6, 1, 2), IndividualGame(0,0,2)))
+      day2.createGameFromEntry(input1) shouldBe Game(1, List(IndividualGame(3, 4, 0), IndividualGame(6, 1, 2), IndividualGame(0, 0, 2)))
 
       val input2 = "Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
 
@@ -31,7 +30,7 @@ class Day2Spec extends AnyWordSpec with Matchers {
   "isGameValid" should {
 
     "mark game as valid if less pulled out than max" in {
-      val game = Game(1, List(IndividualGame(3, 4, 0), IndividualGame(6, 1, 2), IndividualGame(0,0,2)))
+      val game = Game(1, List(IndividualGame(3, 4, 0), IndividualGame(6, 1, 2), IndividualGame(0, 0, 2)))
 
       day2.isGameValid(game) shouldBe true
 
@@ -69,9 +68,9 @@ class Day2Spec extends AnyWordSpec with Matchers {
 
     "find minimum number of cubes for given game" in {
 
-      val game = Game(1, List(IndividualGame(3, 4, 0), IndividualGame(6, 1, 2), IndividualGame(0,0,2)))
+      val game = Game(1, List(IndividualGame(3, 4, 0), IndividualGame(6, 1, 2), IndividualGame(0, 0, 2)))
 
-      day2.findMinNumOfCubes(game) shouldBe (6, 4, 2)
+      day2.findMinNumOfCubes(game) shouldBe(6, 4, 2)
 
     }
 
@@ -81,7 +80,7 @@ class Day2Spec extends AnyWordSpec with Matchers {
 
     "multiply the minimum number of cubes for each colour together" in {
 
-      day2.calculatePowerOfGame((6,4,2)) shouldBe 48
+      day2.calculatePowerOfGame((6, 4, 2)) shouldBe 48
 
     }
 
