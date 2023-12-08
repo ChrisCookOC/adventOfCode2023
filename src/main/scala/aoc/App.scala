@@ -3,6 +3,7 @@ package aoc
 import aoc.day1.Day1
 import aoc.day2.Day2
 import aoc.day3.Day3
+import aoc.day4.Day4
 
 object App {
 
@@ -19,7 +20,8 @@ object App {
     whichDayToRun match {
       case "1" => Day1().run()
       case "2" => Day2().run()
-      case _ => Day3().run()
+      case "3" => Day3().run()
+      case _ => Day4().run()
     }
   }
 
