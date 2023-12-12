@@ -8,7 +8,7 @@ class Day5Spec extends AnyWordSpec with Matchers {
   private val day5 = Day5()
 
   private val exampleAlmanac = Almanac(
-    List(79, 14, 55, 13), List(
+    List(SeedEntry(79, 14), SeedEntry(55, 13)), List(
       Map(Day5.seed, Day5.soil, List(MapEntry(50, 98, 2), MapEntry(52, 50, 48))),
       Map(Day5.soil, Day5.fertilizer, List(MapEntry(0, 15, 37), MapEntry(37, 52, 2), MapEntry(39, 0, 15))),
       Map(Day5.fertilizer, Day5.water, List(MapEntry(49, 53, 8), MapEntry(0, 11, 42), MapEntry(42, 0, 7), MapEntry(57, 7, 4))),
@@ -31,7 +31,7 @@ class Day5Spec extends AnyWordSpec with Matchers {
     "store the seed numbers in a list" in {
       val input = "seeds: 79 14 55 13"
 
-      day5.parseSeedLine(input) shouldBe List(79, 14, 55, 13)
+      day5.parseSeedLine(input) shouldBe List(SeedEntry(79, 14), SeedEntry(55, 13))
 
     }
 
@@ -82,6 +82,67 @@ class Day5Spec extends AnyWordSpec with Matchers {
 
   }
 
+  "getLowestLocationForSeedRange" should {
+
+    "map a range" in {
+      day5.getLowestLocationForSeedRange(exampleAlmanac, SeedEntry(79, 14)) shouldBe 46
+    }
+
+  }
+
+  "findNewRangeFromMap" should {
+
+    "find new range" in {
+
+      //16 -> 10, 17 -> 11, ..., 24 -> 19
+      val mapEntry = MapEntry(10, 16, 9)
+      // All outside the range
+      day5.findNewRangeFromMap(mapEntry, OurRange(1, 7, false)) shouldBe List(OurRange(1, 7, false,1,7))
+      day5.findNewRangeFromMap(mapEntry, OurRange(26, 42, false)) shouldBe List(OurRange(26, 42, false, 26, 42))
+      day5.findNewRangeFromMap(mapEntry, OurRange(96, 99, false)) shouldBe List(OurRange(96, 99, false, 96, 99))
+
+      // All inside a range
+      day5.findNewRangeFromMap(mapEntry, OurRange(19, 21, false)) shouldBe List(OurRange(19, 21, true, 13, 15))
+      day5.findNewRangeFromMap(mapEntry, OurRange(16, 24, false)) shouldBe List(OurRange(16, 24, true, 10, 18))
+
+      //Partially outside the range, partially inside the range
+      day5.findNewRangeFromMap(mapEntry, OurRange(13, 21, false)) shouldBe List(
+        OurRange(13, 15, false, 13, 15),
+        OurRange(16, 21, true, 10, 15)
+      )
+
+      day5.findNewRangeFromMap(mapEntry, OurRange(19, 25, false)) shouldBe List(
+        OurRange(19, 24, true, 13, 19),
+        OurRange(25,25,false, 25, 25)
+      )
+
+      //Encapsulates the range
+      day5.findNewRangeFromMap(mapEntry, OurRange(0, 99, false)) shouldBe List(
+        OurRange(0, 15, false, 0, 15),
+        OurRange(16, 24, true, 10, 19),
+        OurRange(25, 99, false, 25, 99)
+      )
+
+    }
+  }
+
+  "findNewRangeForAllMaps" should {
+
+    "do that" in {
+
+      val map = Map(Day5.seed, Day5.soil, List(MapEntry(50, 98, 2), MapEntry(52, 50, 48)))
+
+      day5.findNewRangeForAllMaps(map, List(OurRange(0, 99, false))) shouldBe List(
+        OurRange(0, 49, false, 0, 49),
+       OurRange(50, 97, true, 52, 99),
+        OurRange(98, 99, true, 50, 51)
+      )
+
+
+    }
+
+  }
+
   "findValueFromMap" should {
 
     "convert a value from one type to another using the map" in {
@@ -102,8 +163,8 @@ class Day5Spec extends AnyWordSpec with Matchers {
 
   "getLowestLocation" should {
 
-    "get lowest of the locations for the seeds" in {
-      day5.getLowestLocation(exampleAlmanac) shouldBe 35
+    "get lowest of the locations for the seeds in range" in {
+      day5.getLowestLocation(exampleAlmanac) shouldBe 46
     }
 
   }
@@ -111,7 +172,7 @@ class Day5Spec extends AnyWordSpec with Matchers {
   "findLowestLocationFromInput" should {
 
     "find lowest location from the given input string" in {
-      day5.findLowestLocationFromInput(example) shouldBe 35
+      day5.findLowestLocationFromInput(example) shouldBe 46
     }
 
   }

@@ -3,7 +3,70 @@ package aoc.day5
 import scala.io.Source
 
 case class Day5() {
-  def findValueFromMap(map: Map, source: Double): Double = {
+  def findNewRangeForAllMaps(map: Map, range: List[OurRange]): List[OurRange] = {
+    map.entries.foldLeft(range) { (cur, mapEntry) =>
+      cur.flatMap { x =>
+        if (x.hasAlreadyAmended) {
+          List(x)
+        } else {
+          findNewRangeFromMap(mapEntry, x)
+        }
+      }
+    }
+  }
+
+  def findNewRangeFromMap(map: MapEntry, ourRange: OurRange): List[OurRange] = {
+
+    val sourceEnd = map.sourceStart + map.range
+    if (ourRange.sourceStart < map.sourceStart && ourRange.sourceEnd > sourceEnd) {
+      //Encapsulates the range
+      List(
+        OurRange(ourRange.sourceStart, map.sourceStart - 1, false, ourRange.sourceStart, map.sourceStart - 1),
+        OurRange(map.sourceStart, sourceEnd - 1, true, map.destinationStart, map.destinationStart + map.range),
+        OurRange(sourceEnd, ourRange.sourceEnd, false, sourceEnd, ourRange.sourceEnd)
+      )
+    } else if (ourRange.sourceStart < map.sourceStart && ourRange.sourceEnd > map.sourceStart && ourRange.sourceEnd < sourceEnd) {
+      //Starts below, ends up within
+      List(
+        OurRange(ourRange.sourceStart, map.sourceStart - 1, false, ourRange.sourceStart, map.sourceStart - 1),
+        OurRange(map.sourceStart,
+          ourRange.sourceEnd, true, map.destinationStart,
+          map.destinationStart - map.sourceStart + ourRange.sourceEnd)
+      )
+    } else if (ourRange.sourceStart >= map.sourceStart && ourRange.sourceStart < sourceEnd && ourRange.sourceEnd >= sourceEnd) {
+      //Starts in range ends up out of it
+      List(
+        OurRange(ourRange.sourceStart, map.sourceStart + map.range - 1,
+          true, map.destinationStart + (ourRange.sourceStart - map.sourceStart),
+          map.destinationStart + map.range),
+        OurRange(sourceEnd, ourRange.sourceEnd, false, sourceEnd, ourRange.sourceEnd)
+      )
+    }
+    else if (map.sourceStart <= ourRange.sourceStart && ourRange.sourceEnd < sourceEnd) {
+      //All in range
+      List(OurRange(ourRange.sourceStart,
+        ourRange.sourceEnd, true,
+        map.destinationStart + (ourRange.sourceStart - map.sourceStart),
+        map.destinationStart - map.sourceStart + ourRange.sourceEnd))
+    }
+    else {
+      List(ourRange.copy(destStart = ourRange.sourceStart, destEnd = ourRange.sourceEnd))
+    }
+  }
+
+  def getLowestLocationForSeedRange(almanac: Almanac, entry: SeedEntry): Long = {
+
+    val soils = findNewRangeForAllMaps(almanac.maps.find(x => x.from == Day5.seed).get, List(OurRange(entry.start, entry.start + entry.range - 1, false)))
+    val fertilizer = findNewRangeForAllMaps(almanac.maps.find(x => x.from == Day5.soil).get, soils.map(x => OurRange(x.destStart, x.destEnd, false)))
+    val water = findNewRangeForAllMaps(almanac.maps.find(x => x.from == Day5.fertilizer).get, fertilizer.map(x => OurRange(x.destStart, x.destEnd, false)))
+    val light = findNewRangeForAllMaps(almanac.maps.find(x => x.from == Day5.water).get, water.map(x => OurRange(x.destStart, x.destEnd, false)))
+    val temperature = findNewRangeForAllMaps(almanac.maps.find(x => x.from == Day5.light).get, light.map(x => OurRange(x.destStart, x.destEnd, false)))
+    val humidity = findNewRangeForAllMaps(almanac.maps.find(x => x.from == Day5.temperature).get, temperature.map(x => OurRange(x.destStart, x.destEnd, false)))
+    val location = findNewRangeForAllMaps(almanac.maps.find(x => x.from == Day5.humidity).get, humidity.map(x => OurRange(x.destStart, x.destEnd, false)))
+    location.map { x => x.destStart }.min
+  }
+
+  def findValueFromMap(map: Map, source: Long): Long = {
     map.entries.foldLeft(source) { (cur, entry) =>
       if (source < entry.sourceStart) cur
       else if (source >= entry.sourceStart + entry.range) cur
@@ -11,21 +74,15 @@ case class Day5() {
     }
   }
 
-  def findLowestLocationFromInput(input: String): Double =
+  def findLowestLocationFromInput(input: String): Long =
     getLowestLocation(parseInput(input))
 
-  def getLowestLocation(exampleAlmanac: Almanac): Double = {
-    exampleAlmanac.seeds.map(x => getLocationForSeed(exampleAlmanac, x)).min
+  def getLowestLocation(almanac: Almanac): Long = {
+    almanac.seeds.map(x => getLowestLocationForSeedRange(almanac, x)).min
   }
 
-  def getLocationForSeed(almanac: Almanac, seed: Double): Double = {
-    //    val soil = almanac.maps.find(x => x.from==Day5.seed && x.to==Day5.soil).get.map(seed)
-    //    val fertilizer = almanac.maps.find(x => x.from==Day5.soil && x.to==Day5.fertilizer).get.map(soil)
-    //    val water = almanac.maps.find(x => x.from==Day5.fertilizer && x.to==Day5.water).get.map(fertilizer)
-    //    val light = almanac.maps.find(x => x.from==Day5.water && x.to==Day5.light).get.map(water)
-    //    val temperature = almanac.maps.find(x => x.from==Day5.light && x.to==Day5.temperature).get.map(light)
-    //    val humidity = almanac.maps.find(x => x.from==Day5.temperature && x.to==Day5.humidity).get.map(temperature)
-    //    almanac.maps.find(x => x.from==Day5.humidity && x.to==Day5.location).get.map(humidity)
+
+  def getLocationForSeed(almanac: Almanac, seed: Long): Long = {
 
     val soil = findValueFromMap(almanac.maps.find(x => x.from == Day5.seed).get, seed)
     val fertilizer = findValueFromMap(almanac.maps.find(x => x.from == Day5.soil).get, soil)
@@ -48,78 +105,23 @@ case class Day5() {
 
   def parseMap(input: String): Map = {
 
-    //    val mb = 1024*1024
-    //    var runtime: Runtime = Runtime.getRuntime
-    //    println("\nMemory in MB start of ParseMap")
-    //    println("** Used Memory:  " + (runtime.totalMemory - runtime.freeMemory) / mb)
-    //    println("** Free Memory:  " + runtime.freeMemory / mb)
-    //    println("** Total Memory: " + runtime.totalMemory / mb)
-    //    println("** Max Memory:   " + runtime.maxMemory / mb)
-    //
     val lines = input.split("\n")
     val title = input.split("[- ]")
     val source = title.head
     val dest = title(2)
-    //    runtime = Runtime.getRuntime
-    //    println("\nMemory in MB after defs")
-    //    println("** Used Memory:  " + (runtime.totalMemory - runtime.freeMemory) / mb)
-    //    println("** Free Memory:  " + runtime.freeMemory / mb)
-    //    println("** Total Memory: " + runtime.totalMemory / mb)
-    //    println("** Max Memory:   " + runtime.maxMemory / mb)
     val map = lines.tail.map(x => {
-      val entries = x.split(" ").map(_.toDouble).toList
+      val entries = x.split(" ").map(_.toLong).toList
       MapEntry(entries.head, entries(1), entries.last)
     }
     ).toList
-    //    runtime = Runtime.getRuntime
-    //    println("\nMemory in MB after getting entries")
-    //    println("** Used Memory:  " + (runtime.totalMemory - runtime.freeMemory) / mb)
-    //    println("** Free Memory:  " + runtime.freeMemory / mb)
-    //    println("** Total Memory: " + runtime.totalMemory / mb)
-    //    println("** Max Memory:   " + runtime.maxMemory / mb)
-    //    val basicMap = SortedMap(Range.inclusive(0, 99).map(_.toDouble).map(x => (x, x)): _*)
-    //    runtime = Runtime.getRuntime
-    //    println("\nMemory in MB after defining a 0 to 99")
-    //    println("** Used Memory:  " + (runtime.totalMemory - runtime.freeMemory) / mb)
-    //    println("** Free Memory:  " + runtime.freeMemory / mb)
-    //    println("** Total Memory: " + runtime.totalMemory / mb)
-    //    println("** Max Memory:   " + runtime.maxMemory / mb)
-    //    val map = entries.foldLeft(basicMap) { (map, entry) => {
-    //      runtime = Runtime.getRuntime
-    //      println("\nMemory in MB in foldLeft top level")
-    //      println("** Used Memory:  " + (runtime.totalMemory - runtime.freeMemory) / mb)
-    //      println("** Free Memory:  " + runtime.freeMemory / mb)
-    //      println("** Total Memory: " + runtime.totalMemory / mb)
-    //      println("** Max Memory:   " + runtime.maxMemory / mb)
-    //
-    //      //TODO not this it blows up memory
-    //      val values = Range.inclusive(0, entry.range.toInt - 1).map(_.toDouble)
-    //      runtime = Runtime.getRuntime
-    //      println("\nMemory in MB after creating range for entry")
-    //      println("** Used Memory:  " + (runtime.totalMemory - runtime.freeMemory) / mb)
-    //      println("** Free Memory:  " + runtime.freeMemory / mb)
-    //      println("** Total Memory: " + runtime.totalMemory / mb)
-    //      println("** Max Memory:   " + runtime.maxMemory / mb)
-    //
-    //      val newList = values.map(x => (entry.sourceStart + x, entry.destinationStart + x))
-    //      runtime = Runtime.getRuntime
-    //      println("\nMemory in MB in nested bit")
-    //      println("** Used Memory:  " + (runtime.totalMemory - runtime.freeMemory) / mb)
-    //      println("** Free Memory:  " + runtime.freeMemory / mb)
-    //      println("** Total Memory: " + runtime.totalMemory / mb)
-    //      println("** Max Memory:   " + runtime.maxMemory / mb)
-    //
-    //      map ++ newList
-    //
-    //    }
-    //    }
+
 
     Map(source, dest, map)
 
   }
 
-  def parseSeedLine(input: String): List[Double] = {
-    input.split(" ").tail.map(_.toDouble).toList
+  def parseSeedLine(input: String): List[SeedEntry] = {
+    input.split(" ").tail.map(_.toLong).grouped(2).map { x => SeedEntry(x.head, x.last) }.toList
   }
 
   def run(): Unit = {
@@ -149,6 +151,10 @@ object Day5 {
 
 case class Map(from: String, to: String, entries: List[MapEntry])
 
-case class Almanac(seeds: List[Double], maps: List[Map])
+case class Almanac(seeds: List[SeedEntry], maps: List[Map])
 
-case class MapEntry(destinationStart: Double, sourceStart: Double, range: Double)
+case class MapEntry(destinationStart: Long, sourceStart: Long, range: Long)
+
+case class SeedEntry(start: Long, range: Long)
+
+case class OurRange(sourceStart: Long, sourceEnd: Long, hasAlreadyAmended: Boolean, destStart: Long = 0, destEnd: Long = 0)
