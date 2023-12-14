@@ -1,41 +1,38 @@
 package aoc.day6
 
-import scala.io.Source
-
 case class Day6() {
-  def processInput(input: String): Int = {
+  def processInput(input: String): Long = {
     val inputProcessed = input.split("\n")
 
     val time = parseTime(inputProcessed.head)
     val dist = parseDistance(inputProcessed.last)
 
-    Range.inclusive(0, time.length - 1)
-      .map(x => howManyWaysCanWin(time(x), dist(x)))
-      .product
+    howManyWaysCanWin(time, dist)
   }
 
-  def howManyWaysCanWin(maxTime: Int, distanceToBeat: Int): Int = {
+  def howManyWaysCanWin(maxTime: Long, distanceToBeat: Long): Long = {
 
-    Range.inclusive(0, maxTime).map(x => getDistance(x, maxTime)).count(x => x > distanceToBeat)
+    Range.Long.inclusive(0, maxTime, 1).map(x => getDistance(x, maxTime)).count(x => x > distanceToBeat)
   }
 
-  def getDistance(timeHoldingButton: Int, totalTime: Int): Int = {
+  def getDistance(timeHoldingButton: Long, totalTime: Long): Long = {
     timeHoldingButton * (totalTime - timeHoldingButton)
   }
 
-  def parseDistance(distance: String): List[Int] = {
-    distance.split(" +").tail.map(_.toInt).toList
+  def parseDistance(distance: String): Long = {
+    distance.split(" +").tail.mkString("").toLong
   }
 
-  def parseTime(time: String): List[Int] = {
-    time.split(" +").tail.map(_.toInt).toList
+  def parseTime(time: String): Long = {
+    time.split(" +").tail.mkString("").toLong
   }
 
   def run(): Unit = {
 
-    val file = getClass.getResourceAsStream("input.txt")
+    // val file = getClass.getResourceAsStream("input.txt")
+    //  val input = Source.fromInputStream(file).mkString
 
-    val input = Source.fromInputStream(file).mkString
+    val input = Input.get
 
     val total = processInput(input)
 

@@ -11,7 +11,7 @@ class Day6Spec extends AnyWordSpec with Matchers {
 
     "parse time" in {
       val time = "Time:      7  15   30"
-      day6.parseTime(time) shouldBe List(7, 15, 30)
+      day6.parseTime(time) shouldBe 71530
     }
 
   }
@@ -20,8 +20,9 @@ class Day6Spec extends AnyWordSpec with Matchers {
 
     "parse distance" in {
       val distance = "Distance:  9  40  200"
-      day6.parseDistance(distance) shouldBe List(9, 40, 200)
+      day6.parseDistance(distance) shouldBe 940200
     }
+
   }
 
   "getDistance" when {
@@ -53,7 +54,7 @@ class Day6Spec extends AnyWordSpec with Matchers {
 
     "get result from input" in {
       val input = "Time:      7  15   30\nDistance:  9  40  200"
-      day6.processInput(input) shouldBe 288
+      day6.processInput(input) shouldBe 71503
     }
 
   }
