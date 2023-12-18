@@ -10,7 +10,7 @@ class Day7Spec extends AnyWordSpec with Matchers {
   "parseLine" should {
 
     "turn line into object" in {
-      day7.parseLine("32J3K 765") shouldBe Hand("32J3K", 765, HandTypes.OnePair)
+      day7.parseLine("32J3K 765") shouldBe Hand("32J3K", 765, HandTypes.ThreeOfAKind)
     }
 
   }
@@ -25,6 +25,25 @@ class Day7Spec extends AnyWordSpec with Matchers {
       day7.findHandResult("Q5Q53") shouldBe HandTypes.TwoPair
       day7.findHandResult("Q4834") shouldBe HandTypes.OnePair
       day7.findHandResult("32564") shouldBe HandTypes.HighCard
+    }
+
+    "use J as a Joker wild card" in {
+      day7.findHandResult("KKKKJ") shouldBe HandTypes.FiveOfAKind
+      day7.findHandResult("KKJKJ") shouldBe HandTypes.FiveOfAKind
+      day7.findHandResult("KJJJK") shouldBe HandTypes.FiveOfAKind
+      day7.findHandResult("JJJKJ") shouldBe HandTypes.FiveOfAKind
+
+      day7.findHandResult("KKKJQ") shouldBe HandTypes.FourOfAKind
+      day7.findHandResult("KJJKQ") shouldBe HandTypes.FourOfAKind
+      day7.findHandResult("JJJKQ") shouldBe HandTypes.FourOfAKind
+
+      day7.findHandResult("KKQQJ") shouldBe HandTypes.FullHouse
+
+      day7.findHandResult("Q3J2Q") shouldBe HandTypes.ThreeOfAKind
+      day7.findHandResult("57J2J") shouldBe HandTypes.ThreeOfAKind
+
+      day7.findHandResult("Q2J34") shouldBe HandTypes.OnePair
+
     }
 
   }
@@ -53,7 +72,6 @@ class Day7Spec extends AnyWordSpec with Matchers {
         Hand("77788", 0, HandTypes.FullHouse)
       ) shouldBe false
 
-
     }
 
     "use value if different values" in {
@@ -69,6 +87,13 @@ class Day7Spec extends AnyWordSpec with Matchers {
       ) shouldBe true
 
     }
+
+    "treat J for Joker as lowest value" in {
+      day7.isHandTwoHigherThanHandOne(
+        Hand("77888", 0, HandTypes.FullHouse),
+        Hand("J7788", 0, HandTypes.FullHouse)
+      ) shouldBe false
+    }
   }
 
   "parseWholeList" should {
@@ -77,10 +102,10 @@ class Day7Spec extends AnyWordSpec with Matchers {
       val list = "32T3K 765\nT55J5 684\nKK677 28\nKTJJT 220\nQQQJA 483"
       day7.parseWholeList(list) shouldBe List(
         Hand("32T3K", 765, HandTypes.OnePair),
-        Hand("KTJJT", 220, HandTypes.TwoPair),
         Hand("KK677", 28, HandTypes.TwoPair),
-        Hand("T55J5", 684, HandTypes.ThreeOfAKind),
-        Hand("QQQJA", 483, HandTypes.ThreeOfAKind),
+        Hand("T55J5", 684, HandTypes.FourOfAKind),
+        Hand("QQQJA", 483, HandTypes.FourOfAKind),
+        Hand("KTJJT", 220, HandTypes.FourOfAKind)
       )
     }
 
@@ -92,13 +117,13 @@ class Day7Spec extends AnyWordSpec with Matchers {
 
       val hands = List(
         Hand("32T3K", 765, HandTypes.OnePair),
-        Hand("KTJJT", 220, HandTypes.TwoPair),
         Hand("KK677", 28, HandTypes.TwoPair),
-        Hand("T55J5", 684, HandTypes.ThreeOfAKind),
-        Hand("QQQJA", 483, HandTypes.ThreeOfAKind),
+        Hand("T55J5", 684, HandTypes.FourOfAKind),
+        Hand("QQQJA", 483, HandTypes.FourOfAKind),
+        Hand("KTJJT", 220, HandTypes.FourOfAKind)
       )
 
-      day7.workOutPoints(hands) shouldBe 6440
+      day7.workOutPoints(hands) shouldBe 5905
 
     }
 

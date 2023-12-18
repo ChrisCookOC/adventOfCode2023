@@ -43,14 +43,15 @@ case class Day7() {
         false
       } else if (hand2Card == 'Q') {
         true
-      } else if (hand1Card == 'J') {
-        false
-      } else if (hand2Card == 'J') {
-        true
       } else if (hand1Card == 'T') {
         false
       } else if (hand2Card == 'T') {
         true
+      } else if (hand1Card == 'J') {
+        //Numbers win so this case is opposite to all the others
+        true
+      } else if (hand2Card == 'J') {
+        false
       } else {
         hand1Card.toInt < hand2Card.toInt
       }
@@ -62,8 +63,8 @@ case class Day7() {
   def findHandResult(hand: String): HandTypes.Value = {
 
     val counts = List(
-      hand.count(x => x == 'A'),
       hand.count(x => x == 'J'),
+      hand.count(x => x == 'A'),
       hand.count(x => x == 'Q'),
       hand.count(x => x == 'K'),
       hand.count(x => x == 'T'),
@@ -77,18 +78,26 @@ case class Day7() {
       hand.count(x => x == '9')
     )
 
+    val jokerCount = counts.head
+    val notJokers = counts.tail
 
-    if (counts.contains(5)) {
+    if (counts.contains(5) || notJokers.contains(4) && jokerCount == 1 ||
+      notJokers.contains(3) && jokerCount == 2 || notJokers.contains(2) && jokerCount == 3 ||
+      notJokers.contains(1) && jokerCount == 4) {
       HandTypes.FiveOfAKind
-    } else if (counts.contains(4)) {
+    } else if (counts.contains(4) || notJokers.contains(3) && jokerCount == 1 ||
+      notJokers.contains(2) && jokerCount == 2 || notJokers.contains(1) && jokerCount == 3) {
       HandTypes.FourOfAKind
-    } else if (counts.contains(3) && counts.contains(2)) {
+    } else if (counts.contains(3) && counts.contains(2) ||
+      notJokers.contains(3) && notJokers.contains(1) && jokerCount == 1 ||
+      notJokers.count(x => x == 2) == 2 && jokerCount == 1 ||
+      notJokers.contains(2) && notJokers.contains(1) && jokerCount == 2) {
       HandTypes.FullHouse
-    } else if (counts.contains(3)) {
+    } else if (counts.contains(3) || notJokers.contains(2) && jokerCount == 1 || notJokers.contains(1) && jokerCount == 2) {
       HandTypes.ThreeOfAKind
     } else if (counts.count(x => x == 2) == 2) {
       HandTypes.TwoPair
-    } else if (counts.contains(2)) {
+    } else if (counts.contains(2) || notJokers.contains(1) && jokerCount == 1) {
       HandTypes.OnePair
     } else {
       HandTypes.HighCard
@@ -110,6 +119,7 @@ case class Day7() {
 
     val input = file.getLines().mkString("\n")
 
+    val list = parseWholeList(input)
     val score = workOutPoints(parseWholeList(input))
 
     println(s"Score is $score")
