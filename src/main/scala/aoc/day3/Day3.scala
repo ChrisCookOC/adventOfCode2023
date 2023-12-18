@@ -247,9 +247,9 @@ case class Day3() {
 
   def run(): Unit = {
 
-    val file = getClass.getResourceAsStream("input.txt")
+    val file = Source.fromResource("day3Input.txt")
 
-    val input = Source.fromInputStream(file).mkString
+    val input = file.getLines().mkString("\n")
 
     val grid = parseTable(input)
     val parts = findPartNumbers(grid)

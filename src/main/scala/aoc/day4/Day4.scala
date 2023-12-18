@@ -60,9 +60,9 @@ case class Day4() {
 
   def run(): Unit = {
 
-    val file = getClass.getResourceAsStream("input.txt")
+    val file = Source.fromResource("day4Input.txt")
 
-    val input = Source.fromInputStream(file).mkString
+    val input = file.getLines().mkString("\n")
 
     val total = processBoardAndGetTotals(input)
 

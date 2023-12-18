@@ -29,9 +29,6 @@ case class Day6() {
 
   def run(): Unit = {
 
-    // val file = getClass.getResourceAsStream("input.txt")
-    //  val input = Source.fromInputStream(file).mkString
-
     val input = Input.get
 
     val total = processInput(input)
