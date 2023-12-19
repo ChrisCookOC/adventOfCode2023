@@ -119,7 +119,6 @@ case class Day7() {
 
     val input = file.getLines().mkString("\n")
 
-    val list = parseWholeList(input)
     val score = workOutPoints(parseWholeList(input))
 
     println(s"Score is $score")
