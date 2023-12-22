@@ -27,6 +27,17 @@ class Day8Spec extends AnyWordSpec with Matchers {
     "ZZZ" -> Node("ZZZ", "ZZZ", "ZZZ")
   ))
 
+  private val instructions3 = Instructions("LR", SortedMap(
+    "11A" -> Node("11A", "11B", "XXX"),
+    "11B" -> Node("11B", "XXX", "11Z"),
+  "11Z" -> Node("11Z", "11B", "XXX"),
+  "22A" -> Node("22A", "22B", "XXX"),
+  "22B" -> Node("22B", "22C", "22C"),
+  "22C" -> Node("22C", "22Z", "22Z"),
+  "22Z" -> Node("22Z", "22B", "22B"),
+  "XXX" -> Node("XXX", "XXX", "XXX")
+  ))
+
   "parseLine" should {
 
     "parseLine" in {
@@ -65,6 +76,40 @@ class Day8Spec extends AnyWordSpec with Matchers {
       day8.runJourney(instructions2) shouldBe 6
     }
 
+  }
+
+  "runJourneyAllAtOnce" should {
+
+    "find how many moves to get to ending with Z in the new way" in {
+      day8.runJourneyAllAtOnce(instructions3) shouldBe 6
+    }
+
+  }
+
+  "gcd" should {
+
+    "do the maths" in {
+      day8.gcd(1071, 462) shouldBe 21
+    }
+
+  }
+
+  "lcm" should {
+
+    "do the maths" in {
+      day8.lcm(21, 6) shouldBe 42
+      day8.lcm(21, 73) shouldBe 1533
+      day8.lcm(42, 73) shouldBe 3066
+    }
+
+  }
+
+  "multiple lcm" should {
+
+    "find lcm of multiple numbers" in {
+
+      day8.multiLcm(Seq(42,73,89,3,54)) shouldBe 2455866
+    }
   }
 
 }
