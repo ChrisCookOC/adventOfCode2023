@@ -64,10 +64,31 @@ class Day9Spec extends AnyWordSpec with Matchers {
 
   }
 
+  "findPrevNumber" should {
+
+    "find previous number in the sequence" in {
+
+      day9.findPrevNumber(list1) shouldBe -3
+      day9.findPrevNumber(list2) shouldBe 0
+
+    }
+
+  }
+
+  "addPrevNumberToSeq" should {
+
+    "return list with previous number at the start" in {
+      day9.addPrevNumberToSeq(Seq(0,0,0), Seq(2,2,2,2)) shouldBe Seq(2,2,2,2,2)
+      day9.addPrevNumberToSeq(Seq(2,2,2,2,2), Seq(0,2,4,6,8)) shouldBe Seq(-2, 0, 2, 4, 6, 8)
+      day9.addPrevNumberToSeq(Seq(-2,0,2,4,6,8), Seq(3,3,5,9,15,23)) shouldBe Seq(5,3,3,5,9,15,23)
+    }
+
+  }
+
   "sumAllSeqs" should {
 
-    "sum up all the next entries in the sequence" in {
-      day9.sumAllSeqs("0 3 6 9 12 15\n1 3 6 10 15 21\n10 13 16 21 30 45") shouldBe 114
+    "sum up all the next and prev entries in the sequence" in {
+      day9.sumAllSeqs("0 3 6 9 12 15\n1 3 6 10 15 21\n10 13 16 21 30 45") shouldBe (114,2)
     }
 
   }

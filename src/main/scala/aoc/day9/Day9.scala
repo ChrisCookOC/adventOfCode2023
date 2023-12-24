@@ -4,11 +4,27 @@ import scala.annotation.tailrec
 import scala.io.Source
 
 case class Day9() {
-  def sumAllSeqs(entries: String): Int = {
+  def addPrevNumberToSeq(lastSeq: Seq[Int], nextSeq: Seq[Int]): Seq[Int] = {
+    (nextSeq.head - lastSeq.head) +: nextSeq
+  }
+
+  def findPrevNumber(rules: List[Seq[Int]]): Int = {
+    rules.reverse.foldLeft(Seq(rules.last)) { (cur, item) =>
+      cur :+ Seq(addPrevNumberToSeq(cur.last, item), item).flatten
+    }.last.head
+  }
+
+  def sumAllSeqs(entries: String): (Int, Int) = {
 
     val lines = entries.split("\n")
 
-    lines.map(x => findNextNumber(findSequenceRules(x))).sum
+    lines.map { x =>
+      val rules = findSequenceRules(x)
+      (findNextNumber(rules),
+        findPrevNumber(rules))
+    }.foldLeft((0, 0)) { (cur, item) =>
+      (cur._1 + item._1, cur._2 + item._2)
+    }
 
   }
 
