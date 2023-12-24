@@ -8,6 +8,7 @@ import aoc.day5.Day5
 import aoc.day6.Day6
 import aoc.day7.Day7
 import aoc.day8.Day8
+import aoc.day9.Day9
 
 object App {
 
@@ -29,7 +30,8 @@ object App {
       case "5" => Day5().run()
       case "6" => Day6().run()
       case "7" => Day7().run()
-      case _ => Day8().run()
+      case "8" => Day8().run()
+      case _ => Day9().run()
     }
   }
 
